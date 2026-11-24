@@ -8,6 +8,7 @@ import pytest
 from .orientation import (
     Orientation,
     PsaOrientation,
+    orient_dimensions,
     orientation_from_psa_integer,
     orientation_from_psa_orientation,
     psa_orientation_from_psa_integer,
@@ -113,3 +114,30 @@ class TestOrientationFromPsaInteger:
         """Full conversion should work with string input."""
         assert orientation_from_psa_integer("4") == "U"
         assert orientation_from_psa_integer("10") == "D"
+
+
+class TestOrientDimensions:
+    """Tests for orient_dimensions, which match OrientedDimensionsFromDimensionsAndOrientation."""
+
+    @pytest.mark.parametrize(
+        ("orientations", "expected"),
+        [
+            (["F", "Fu", "B", "Bu"], (1, 2, 3)),
+            (["Fl", "Fr", "Bl", "Br"], (2, 1, 3)),
+            (["L", "R", "Lu", "Ru"], (3, 2, 1)),
+            (["Ll", "Lr", "Rl", "Rr"], (2, 3, 1)),
+            (["U", "Uu", "D", "Du"], (1, 3, 2)),
+            (["Ul", "Ur", "Dl", "Dr"], (3, 1, 2)),
+        ],
+    )
+    def test_all_orientations(
+        self, orientations: list[Orientation], expected: tuple[int, int, int]
+    ):
+        for orientation in orientations:
+            assert orient_dimensions(1, 2, 3, orientation) == expected
+
+    def test_bag_lying_on_its_base_is_as_tall_as_it_is_deep(self):
+        """Strong Roots Sweet Potato Fries (Co-op 944829) lie 5 high in a 250mm tall space."""
+        width, height, depth = orient_dimensions(215, 240, 50, "D")
+        assert (width, height, depth) == (215, 50, 240)
+        assert 250 / height == 5

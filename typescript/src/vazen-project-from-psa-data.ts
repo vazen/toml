@@ -868,6 +868,7 @@ const VazenProjectFieldsFromPsaProject = PsaProjectColumns.pipe(
 
 // A file's data with each section read as its noun.
 const PsaDataWithNouns = S.Struct({
+  declaredEncoding: PsaData.fields.declaredEncoding,
   declaredVersion: PsaData.fields.declaredVersion,
   messages: PsaData.fields.messages,
   planograms: S.Array(VazenFixtureFromPsaPlanogramSection),
@@ -1083,6 +1084,7 @@ export const VazenProjectFromPsaData: S.Codec<VazenProject, PsaData> =
                 },
               );
             return Effect.succeed({
+              declaredEncoding: Option.none(),
               declaredVersion: Option.flatMap(project.source, (source) =>
                 source.format === 'psa'
                   ? source.declaredVersion
@@ -1247,7 +1249,7 @@ const unlistedCodeIssues = ({
 
 const refFromPsaIdentity = ({ id, upc }: PsaIdentity) => {
   const identity = new TextEncoder().encode(
-    `${Option.getOrElse(upc, () => '')}\u0000${Option.getOrElse(id, () => '')}`,
+    `${Option.getOrElse(upc, () => '')}\0${Option.getOrElse(id, () => '')}`,
   );
   let hash = FNV_OFFSET_BASIS;
   for (const byte of identity) {

@@ -8,6 +8,7 @@ import { PsaPosition } from './psa-position';
 import { PsaProduct } from './psa-product';
 import { PsaProject } from './psa-project';
 import { PsaSegment } from './psa-segment';
+import { PsaEncoding } from './text-from-bytes';
 
 /** A row read by its type's columns. */
 export const PsaRecord = S.Union([
@@ -22,10 +23,11 @@ export const PsaRecord = S.Union([
 export type PsaRecord = typeof PsaRecord.Type;
 
 /**
- * The version a file declares, its records in the file's order, and what
- * reading them gave up.
+ * The encoding and version a file declares, its records in the file's order,
+ * and what reading them gave up.
  */
 export const PsaRecords = S.Struct({
+  declaredEncoding: S.Option(PsaEncoding),
   declaredVersion: S.Option(S.String),
   messages: S.Array(PsaMessage),
   records: S.Array(PsaRecord),

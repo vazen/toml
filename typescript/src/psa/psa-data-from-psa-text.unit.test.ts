@@ -491,6 +491,21 @@ describe('PsaDataFromPsaText', () => {
   });
 
   it.each([
+    ['1252', '1252', Option.some('windows-1252')],
+    ['65001', '65001', Option.some('utf-8')],
+    ['UTF-16', '65001', Option.none()],
+  ])(
+    'reads Codepage=%s as the encoding the file declares, and writes Codepage=%s',
+    (codepage, written, declared) => {
+      const withCodepage = (value: string) =>
+        fileFromRows().replace('; Codepage=1252', () => `; Codepage=${value}`);
+      const file = decodeSync(withCodepage(codepage));
+      expect(file.declaredEncoding).toEqual(declared);
+      expect(encodeSync(file)).toBe(withCodepage(written));
+    },
+  );
+
+  it.each([
     ['without the PSA first line', [row({ _tag: 'Project' })], /first line/],
     [
       'with a tab after the first line',
@@ -718,16 +733,5 @@ describe('PsaDataFromPsaBytes', () => {
         encodePsaFileFromPsaData({ data: file, version: '2017.2.0' }),
       ).toString('latin1'),
     ).toContain('\r\n; Version 2017.2.0\r\n');
-  });
-
-  it('refuses to write a character Windows-1252 cannot hold, naming its line', () => {
-    const file = decodeBytes(
-      Uint8Array.from(Buffer.from(productNamed('Łódź'), 'utf8')),
-    );
-    expect(
-      Result.getFailure(S.encodeResult(PsaDataFromPsaBytes)(file)).pipe(
-        Option.map(({ message }) => message),
-      ),
-    ).toEqual(Option.some(expect.stringMatching(/line 5 holds "Ł"/)));
   });
 });

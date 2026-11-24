@@ -11,7 +11,7 @@ export {
   type VazenPosition,
 } from './vazen-geometry';
 export {
-  type VazenGtin,
+  VazenGtin,
   type VazenProduct,
   type VazenProductImage,
   type VazenProductImages,
@@ -28,6 +28,7 @@ export {
   VazenProjectFromTomlText,
 } from './vazen-project-from-toml-text';
 export {
+  VazenProjectFromVazenTomlProject,
   VazenVersion,
   type VazenProjectRead,
 } from './vazen-project-from-vazen-toml-project';

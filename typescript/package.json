@@ -1,6 +1,6 @@
 {
   "name": "@vazen/toml",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Read and write Vazen TOML 0.3.0 files, as TOML or JSON, and ProSpace PSA planogram files.",
   "keywords": [
     "blue-yonder",
@@ -57,12 +57,13 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
-    "@types/node": "26.6.3",
-    "effect": "4.0.0",
+    "@types/node": "26.6.6",
+    "@typescript/native": "npm:typescript@7.0.2",
+    "effect": "4.1.4",
     "publint": "0.3.25",
-    "tsdown": "0.23.0",
-    "typescript": "6.0.3",
-    "vitest": "5.0.3"
+    "tsdown": "0.23.5",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
+    "vitest": "5.1.0"
   },
   "peerDependencies": {
     "effect": "^4.0.0"

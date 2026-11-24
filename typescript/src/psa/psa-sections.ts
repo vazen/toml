@@ -8,6 +8,7 @@ import { PsaPosition } from './psa-position';
 import { PsaProduct } from './psa-product';
 import { PsaProject } from './psa-project';
 import { PsaSegment } from './psa-segment';
+import { PsaEncoding } from './text-from-bytes';
 
 /**
  * A planogram and the records after it, up to the next, in the file's order.
@@ -26,6 +27,7 @@ const PsaPlanogramRecords = S.Struct({
 
 /** A file's project, its products, and each planogram with its records. */
 export const PsaSections = S.Struct({
+  declaredEncoding: S.Option(PsaEncoding),
   declaredVersion: S.Option(S.String),
   messages: S.Array(PsaMessage),
   planograms: S.Array(PsaPlanogramRecords),

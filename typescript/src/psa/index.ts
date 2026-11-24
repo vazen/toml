@@ -91,9 +91,9 @@ export {
   PsaSegmentFromPsaRow,
 } from './psa-segment';
 export {
+  PsaEncoding,
   psaTextFromBytes,
   TextFromBytes,
-  type PsaEncoding,
 } from './text-from-bytes';
 export {
   PSA_DEFAULT_WRITTEN_VERSION,

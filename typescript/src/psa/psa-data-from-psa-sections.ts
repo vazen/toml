@@ -16,7 +16,14 @@ export const PsaDataFromPsaSections: S.Codec<PsaData, PsaSections> =
   PsaSections.pipe(
     S.decodeTo(PsaData, {
       decode: SchemaGetter.transformEffect(
-        ({ declaredVersion, messages, planograms, products, project }) => {
+        ({
+          declaredEncoding,
+          declaredVersion,
+          messages,
+          planograms,
+          products,
+          project,
+        }) => {
           const nested = planograms.map(({ planogram, records }) => {
             const fixturesAndPositions = A.filter(
               records,
@@ -51,6 +58,7 @@ export const PsaDataFromPsaSections: S.Codec<PsaData, PsaSections> =
           );
           const rows = ignoredRows.flat();
           return Effect.succeed({
+            declaredEncoding,
             declaredVersion,
             messages: A.isReadonlyArrayNonEmpty(rows)
               ? [
@@ -69,8 +77,16 @@ export const PsaDataFromPsaSections: S.Codec<PsaData, PsaSections> =
         },
       ),
       encode: SchemaGetter.transformEffect(
-        ({ declaredVersion, messages, planograms, products, project }) =>
+        ({
+          declaredEncoding,
+          declaredVersion,
+          messages,
+          planograms,
+          products,
+          project,
+        }) =>
           Effect.succeed({
+            declaredEncoding,
             declaredVersion,
             messages,
             planograms: planograms.map(

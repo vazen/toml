@@ -180,7 +180,8 @@ file into `VazenProject`. In a `VazenProject`, an optional value is an Effect
 `Option`, the keys the specification does not define live in each object's
 `attributes`, and `source` and `messages` are part of the project. So the PSA
 schemas write the version of the PSA file the project came from, when that
-version can hold the project.
+version can hold the project. `VazenProjectFromVazenTomlProject` reads the
+tables themselves, for a program that builds them and has no file.
 
 The functions above read a file as a project. To edit the columns of a PSA file,
 read its records instead. `decodePsaDataFromPsaFile` returns `PsaData`, the rows

@@ -19,7 +19,7 @@ export const PsaSectionsFromPsaRecords: S.Codec<PsaSections, PsaRecords> =
   PsaRecords.pipe(
     S.decodeTo(PsaSections, {
       decode: SchemaGetter.transformEffect(
-        ({ declaredVersion, messages, records }, _) => {
+        ({ declaredEncoding, declaredVersion, messages, records }, _) => {
           const fail = (message: string) =>
             Effect.fail(
               new SchemaIssue.InvalidValue({ message }, records.length),
@@ -54,6 +54,7 @@ export const PsaSectionsFromPsaRecords: S.Codec<PsaSections, PsaRecords> =
           return Option.match(A.head(leading), {
             onNone: () =>
               Effect.succeed({
+                declaredEncoding,
                 declaredVersion,
                 messages,
                 planograms,
@@ -66,8 +67,16 @@ export const PsaSectionsFromPsaRecords: S.Codec<PsaSections, PsaRecords> =
         },
       ),
       encode: SchemaGetter.transformEffect(
-        ({ declaredVersion, messages, planograms, products, project }) =>
+        ({
+          declaredEncoding,
+          declaredVersion,
+          messages,
+          planograms,
+          products,
+          project,
+        }) =>
           Effect.succeed({
+            declaredEncoding,
             declaredVersion,
             messages,
             records: [

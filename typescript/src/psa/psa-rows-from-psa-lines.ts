@@ -14,6 +14,7 @@ import { groupUnderHeads } from './group-under-heads';
 import { PsaLines } from './psa-lines';
 import { PsaRows } from './psa-rows';
 import { PsaRecordType } from './psa-versions';
+import { codepageLine, encodingOfCodepageLine } from './text-from-bytes';
 
 const FIRST_LINE = 'PROSPACE SCHEMATIC FILE';
 // Some files write the first line with trailing spaces, which are dropped, or
@@ -24,8 +25,6 @@ const VERSION_PREFIX = '; Version ';
 // files write it as `;V8.0.1.2`.
 const VERSION_PATTERN =
   /^(?:PROSPACE SCHEMATIC FILE)?(?:; Version |;V(?=\d))(.*)$/;
-// Every file is written in Windows-1252, whatever the file read declared.
-const CODEPAGE_LINE = '; Codepage=1252';
 // The escapes ProSpace writes, by the character after the backslash: a
 // generator's action list, for one, holds its line breaks as `\r\n`.
 const CHARACTER_BY_ESCAPE: Record.ReadonlyRecord<string, string> = {
@@ -44,8 +43,9 @@ const ESCAPE_BY_CHARACTER = Record.fromEntries(
 const ESCAPED_CHARACTERS = /[\t\n\r",\\]/g;
 
 /**
- * A file's rows, from its lines: the header's version, if it gives one, and
- * each later line split into its type and cells. A row of a type this package
+ * A file's rows, from its lines: the header's version and encoding, if it
+ * declares them, and each later line split into its type and cells. A file
+ * declaring no encoding is written as UTF-8. A row of a type this package
  * does not read is kept with the row before it, so it is written back there.
  * Comment lines other than the header's, and blank lines, are dropped.
  */
@@ -76,6 +76,7 @@ export const PsaRowsFromPsaLines = PsaLines.pipe(
       return Option.match(A.head(leading), {
         onNone: () =>
           Effect.succeed({
+            declaredEncoding: A.findFirst(lines, encodingOfCodepageLine),
             declaredVersion: pipe(
               A.findFirst(lines, (line) =>
                 Option.fromNullishOr(VERSION_PATTERN.exec(line)?.[1]),
@@ -88,19 +89,20 @@ export const PsaRowsFromPsaLines = PsaLines.pipe(
         onSome: ([_tag = '']) => fail(`a ${_tag} row before the Project row`),
       });
     }),
-    encode: SchemaGetter.transformEffect(({ declaredVersion, rows }) =>
-      Effect.succeed([
-        FIRST_LINE,
-        ...Option.toArray(
-          Option.map(declaredVersion, (text) => `${VERSION_PREFIX}${text}`),
-        ),
-        CODEPAGE_LINE,
-        ...rows.flatMap((row) =>
-          [row, ...row.unknownRowsAfter].map(({ _tag, cells }) =>
-            joinCells([_tag, ...cells]),
+    encode: SchemaGetter.transformEffect(
+      ({ declaredEncoding, declaredVersion, rows }) =>
+        Effect.succeed([
+          FIRST_LINE,
+          ...Option.toArray(
+            Option.map(declaredVersion, (text) => `${VERSION_PREFIX}${text}`),
           ),
-        ),
-      ]),
+          codepageLine(Option.getOrElse(declaredEncoding, () => 'utf-8')),
+          ...rows.flatMap((row) =>
+            [row, ...row.unknownRowsAfter].map(({ _tag, cells }) =>
+              joinCells([_tag, ...cells]),
+            ),
+          ),
+        ]),
     ),
   }),
 ).annotate({ identifier: 'PsaRowsFromPsaLines' });

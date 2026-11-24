@@ -9,6 +9,24 @@ Changes to the `@vazen/toml` npm package, published as `@vazen-ai/toml` up to
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-24
+
+### Added
+
+- Export `VazenProjectFromVazenTomlProject`, the schema that reads the tables of
+  a file into a `VazenProject` and writes them back. It reads tables that a
+  program builds, where no file holds them.
+- Export `VazenGtin` as a schema as well as a type, to check a GTIN before
+  writing it to a product.
+
+### Changed
+
+- Write PSA files in UTF-8, declaring `; Codepage=65001`, rather than in
+  Windows-1252. `PsaData` keeps the encoding its file declares as the new
+  `declaredEncoding`, so a file declaring `; Codepage=1252` is written back in
+  Windows-1252, unless Windows-1252 cannot hold its text, which writing used to
+  refuse.
+
 ## [0.4.0] - 2026-10-13
 
 ### Changed
