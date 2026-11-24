@@ -13,6 +13,7 @@ back as a PSA file.
 
 ```text
 PsaData
+├── declaredEncoding        PsaEncoding (optional)
 ├── declaredVersion         string (optional)
 ├── messages                PsaMessage (list)
 ├── project                 PsaProject
@@ -28,11 +29,13 @@ PsaData
 
 ## Reading
 
-A file is read as UTF-8 if it is valid UTF-8, and as Windows-1252 if not. Each
-row is read by its type's columns, whatever version the file declares. A row of
-a type this package does not read is kept in the `unknownRowsAfter` of the
-record before it. What reading gives up, such as a cell its column cannot read,
-is listed in `messages`, and [`PsaMessage`](psa-messages.ts) says what each kind
+A file is read as UTF-8 if it is valid UTF-8, and as Windows-1252 if not,
+whatever its Codepage line declares: many files declaring Windows-1252 are
+UTF-8. The declaration is kept as `declaredEncoding`, for writing. Each row is
+read by its type's columns, whatever version the file declares. A row of a type
+this package does not read is kept in the `unknownRowsAfter` of the record
+before it. What reading gives up, such as a cell its column cannot read, is
+listed in `messages`, and [`PsaMessage`](psa-messages.ts) says what each kind
 means.
 
 Reading refuses a file that is not a PSA file, one that starts with a UTF-8
@@ -41,13 +44,16 @@ row, and one with a record other than a product before the first planogram.
 
 ## Writing
 
-Every file is written in Windows-1252. Writing refuses anything that would not
-read back as the same records, such as a value in a column the version written
-does not have, a character Windows-1252 cannot hold, or text whose Windows-1252
-bytes are also valid UTF-8, such as `Ã©`, which reading would take as `é`. Two
-exceptions: text is written in Unicode's composed form, so a letter and a
-combining accent become the one character Windows-1252 has for them, and U+FFFD
-is written as `?`.
+A file is written in Windows-1252, declaring `; Codepage=1252`, when its data
+declares Windows-1252 and Windows-1252 can hold its text, and in UTF-8,
+declaring `; Codepage=65001`, otherwise. Windows-1252 cannot hold text whose
+bytes are also valid UTF-8, such as `Ã©`, which reading would take as `é`.
+
+Writing refuses anything that would not read back as the same records, such as a
+value in a column the version written does not have, or an unpaired UTF-16
+surrogate. Two exceptions: text is written in Unicode's composed form, so a
+letter and a combining accent become the one character Windows-1252 has for
+them, and U+FFFD is written as `?`.
 
 So a file read with no messages and written back holds the same records, but for
 those two. Its text may differ in form, such as how numbers are written, the

@@ -10,6 +10,7 @@ import {
 } from 'effect';
 
 import { PsaRecordType } from './psa-versions';
+import { PsaEncoding } from './text-from-bytes';
 
 /** A row of a type this package does not read, kept as its text. */
 export const PsaUnknownRow = S.Struct({
@@ -63,9 +64,11 @@ export const PsaRow = S.Struct({
 export type PsaRow = typeof PsaRow.Type;
 
 /**
- * The version a file's header declares, if it gives one, and its rows in order.
+ * The encoding and version a file's header declares, if it gives them, and its
+ * rows in order.
  */
 export const PsaRows = S.Struct({
+  declaredEncoding: S.Option(PsaEncoding),
   declaredVersion: S.Option(S.String),
   rows: S.Array(PsaRow),
 }).annotate({ identifier: 'PsaRows' });

@@ -8,6 +8,7 @@ import { PsaPosition } from './psa-position';
 import { PsaProduct } from './psa-product';
 import { PsaProject } from './psa-project';
 import { PsaSegment } from './psa-segment';
+import { PsaEncoding } from './text-from-bytes';
 
 const PsaFixtureSection = S.Struct({
   fixture: S.toType(PsaFixture),
@@ -29,6 +30,12 @@ export const PsaData = S.Struct({
   planograms: S.Array(PsaPlanogramSection),
   products: S.Array(S.toType(PsaProduct)),
   project: S.toType(PsaProject),
+  /**
+   * The encoding the file's Codepage line declares, if it declares 1252 or
+   * 65001. Writing writes Windows-1252 when this holds it and Windows-1252
+   * holds the text, and UTF-8 otherwise.
+   */
+  declaredEncoding: S.Option(PsaEncoding),
   /**
    * The version the file declares, if it gives one. Writing writes this
    * version, or 2024.4.0 when there is none or `PsaVersion` does not list it.

@@ -30,7 +30,8 @@ existing libraries across languages.
   specification.
 - [`examples/`](examples/) holds example files for each version, in a folder
   named after it.
-- [`typescript/`](typescript/README.md) holds the `@vazen/toml` npm package,
+- [`typescript/`](typescript/README.md) holds the
+  [`@vazen/toml`](https://www.npmjs.com/package/@vazen/toml) npm package,
   versioned independently of the format.
 
 The package is built on

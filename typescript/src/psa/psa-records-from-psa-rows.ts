@@ -67,7 +67,7 @@ const LISTED_WIDTHS = Record.map(
 
 /**
  * Reads a file's records from its rows, each by its type's columns, and keeps
- * the version the file declares as `declaredVersion`. A cell past a row's last
+ * the encoding and version the file declares. A cell past a row's last
  * column is dropped, and a cell its column cannot read is read as empty; both
  * are listed in `messages`, as are rows of a width no listed version gives.
  * Writes the records as the version `declaredVersion` holds, 2024.4.0 when it
@@ -76,7 +76,7 @@ const LISTED_WIDTHS = Record.map(
  */
 export const PsaRecordsFromPsaRows: S.Codec<PsaRecords, PsaRows> = PsaRows.pipe(
   S.decodeTo(PsaRecords, {
-    decode: SchemaGetter.transformEffect(({ declaredVersion, rows }) =>
+    decode: SchemaGetter.transformEffect(({ rows, ...declared }) =>
       Effect.fromResult(
         pipe(
           rows.map(readRow),
@@ -127,7 +127,7 @@ export const PsaRecordsFromPsaRows: S.Codec<PsaRecords, PsaRows> = PsaRows.pipe(
               })),
             ];
             return {
-              declaredVersion,
+              ...declared,
               messages,
               records: facts.map(({ record }) => record),
             };
@@ -135,9 +135,9 @@ export const PsaRecordsFromPsaRows: S.Codec<PsaRecords, PsaRows> = PsaRows.pipe(
         ),
       ),
     ),
-    encode: SchemaGetter.transformEffect(({ declaredVersion, records }, _) => {
+    encode: SchemaGetter.transformEffect(({ records, ...declared }, _) => {
       const version = pipe(
-        declaredVersion,
+        declared.declaredVersion,
         Option.flatMap(S.decodeUnknownOption(PsaVersion)),
         Option.getOrElse(() => PSA_DEFAULT_WRITTEN_VERSION),
       );
@@ -167,6 +167,7 @@ export const PsaRecordsFromPsaRows: S.Codec<PsaRecords, PsaRows> = PsaRows.pipe(
           ),
           Result.all,
           Result.map((rows) => ({
+            ...declared,
             declaredVersion: Option.some(version),
             rows,
           })),

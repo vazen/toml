@@ -65,3 +65,15 @@ def orientation_from_psa_orientation(psa_orientation: PsaOrientation) -> Orienta
 def orientation_from_psa_integer(orientation_integer: int | str) -> Orientation:
     """Convert PSA orientation integer to standard Orientation string."""
     return orientation_from_psa_orientation(psa_orientation_from_psa_integer(orientation_integer))
+
+
+def orient_dimensions[T](width: T, height: T, depth: T, orientation: Orientation) -> tuple[T, T, T]:
+    """Width, height and depth of a product as the shopper sees it in this orientation."""
+    face, twist = orientation[0], orientation[1:]
+    if face in ("L", "R"):
+        width, depth = depth, width
+    elif face in ("U", "D"):
+        height, depth = depth, height
+    if twist in ("l", "r"):
+        width, height = height, width
+    return width, height, depth

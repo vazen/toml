@@ -180,6 +180,7 @@ const dataWith = ({
   project?: Readonly<Record<string, unknown>>;
 }>): PsaData =>
   S.decodeUnknownSync(PsaData)({
+    declaredEncoding: Option.none(),
     declaredVersion: Option.none(),
     messages: [],
     planograms: [
@@ -969,8 +970,8 @@ _psa__merch_style = "tray"
 
   it('refuses colliding generated refs even without positions, and never uses a missing identity as a ref', () => {
     const products = [
-      { id: 'C', upc: 'DUMMY-A\u0000B' },
-      { id: 'B\u0000C', upc: 'DUMMY-A' },
+      { id: 'C', upc: 'DUMMY-A\0B' },
+      { id: 'B\0C', upc: 'DUMMY-A' },
     ];
     expect(
       messageOf(
@@ -1049,12 +1050,12 @@ _psa__merch_style = "tray"
   it.each([
     {
       error: 'ref shared by 2 products',
-      unitUpc: 'DUMMY-A\u0000B',
+      unitUpc: 'DUMMY-A\0B',
       upc: 'DUMMY-A',
     },
     {
       error: 'same ref after PSA text normalisation',
-      unitUpc: 'DUMMY-cafe\u0301\u0000B',
+      unitUpc: 'DUMMY-cafe\u0301\0B',
       upc: 'DUMMY-café',
     },
   ])(
@@ -1071,7 +1072,7 @@ _psa__merch_style = "tray"
                 name: 'Dummy product',
               },
               {
-                _psa__id: 'B\u0000C',
+                _psa__id: 'B\0C',
                 _psa__upc: upc,
                 form: 'tray',
                 name: 'Dummy product',
